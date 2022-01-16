@@ -62,8 +62,8 @@ class Snake():
         self.snake_body.insert(0, list(self.snake_head_pos))
         if (self.snake_head_pos[0] == food_pos[0] and
                 self.snake_head_pos[1] == food_pos[1]):
-            food_pos = [randint(1, 720 // 10) * 10,
-                        randint(1, 460 // 10) * 10]
+            food_pos = [randint(1, 710 // 10) * 10,
+                        randint(1, 450 // 10) * 10]
             score += 1
         else:
             del self.snake_body[-1]
@@ -90,7 +90,7 @@ class Food():
         self.food_color = pygame.Color(0, 255, 0)
         self.food_size_x = 10
         self.food_size_y = 10
-        self.food_pos = [randint(1, 720 // 10) * 10, randint(1, 460 // 10) * 10]
+        self.food_pos = [randint(1, 710 // 10) * 10, randint(1, 450 // 10) * 10]
 
     def draw_food(self, play_surface):
         pygame.draw.rect(
