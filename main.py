@@ -6,6 +6,7 @@ class Game():
     def __init__(self):
         self.fps_controller = pygame.time.Clock()
         self.score = 0
+        self.play_surface = pygame.display.set_mode((720, 460))
 
     def set_title(self):
         self.play_surface = pygame.display.set_mode((720, 460))
@@ -34,8 +35,8 @@ class Game():
 
 class Snake():
     def __init__(self):
-        self.snake_head_pos = [100, 50]
-        self.snake_body = [[100, 50]]
+        self.snake_head_pos = [360, 230]
+        self.snake_body = [[360, 230]]
         self.snake_color = pygame.Color(255, 0, 0)
         self.direction = ''
         self.change_to = self.direction
