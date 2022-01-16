@@ -1,156 +1,122 @@
 import pygame
-import random
+from random import randint
 
 
-def create_snake(surface, x, y, w, h, color):
-    rect = pygame.Rect(x, y, w, h)
-    pygame.draw.rect(surface, color, rect)
-    return rect
+class Game():
+    def __init__(self):
+        self.fps_controller = pygame.time.Clock()
+        self.score = 0
 
+    def set_title(self):
+        self.play_surface = pygame.display.set_mode((720, 460))
+        pygame.display.set_caption('Snake Game')
 
-def random_coords():
-    x1 = random.randint(10, WIDTH - 10)
-    y1 = random.randint(10, HEIGHT - 10)
-    return x1, y1
+    def events(self, change_to):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    change_to = "RIGHT"
+                elif event.key == pygame.K_LEFT:
+                    change_to = "LEFT"
+                elif event.key == pygame.K_UP:
+                    change_to = "UP"
+                elif event.key == pygame.K_DOWN:
+                    change_to = "DOWN"
+        return change_to
 
-
-def make_apples(surface):
-    global col_apples, x_apple, y_apple, player_x, player_y, player_speed
-    if eat_apple(player_x, player_y, x_apple, y_apple):
-        col_apples = 0
-        new_size_snake(player_x, player_y)
-        if player_speed <= 8:
-            player_speed += 0.25
-    if col_apples == 0:
-        x_apple, y_apple = random_coords()
-        rect_apple = pygame.Rect(x_apple, y_apple, 12, 12)
-    else:
-        rect_apple = pygame.Rect(x_apple, y_apple, 12, 12)
-    pygame.draw.rect(surface, (0, 255, 0), rect_apple)
-    col_apples += 1
-    return rect_apple
-
-
-def make_textures():
-    player = create_snake(display, player_x, player_y, 15, 15, (255, 0, 0))
-    apples = make_apples(display)
-
-
-def in_game():
-    global player_x, player_y, speed_limit, player_speed
-
-    if poz_x:
-        player_x += vx
-    if poz_y:
-        player_y += vy
-    if player_x <= 0 or player_y <= 0 or player_y >= HEIGHT or player_x >= WIDTH:
-        print('GAME OVER')
+    def game_over(self):
+        pygame.quit()
         exit(0)
 
 
-def eat_apple(x_player, y_player, x_apple, y_apple):
-    global your_score
-    x1_player, y1_player, w_player, h_player = x_player, y_player, 15, 25
-    x2_player = x1_player + w_player
-    y2_player = y1_player + h_player
+class Snake():
+    def __init__(self):
+        self.snake_head_pos = [100, 50]
+        self.snake_body = [[100, 50]]
+        self.snake_color = pygame.Color(255, 0, 0)
+        self.direction = ''
+        self.change_to = self.direction
 
-    x1_apple, y1_apple, w_apple, h_apple = x_apple, y_apple, 15, 15
-    x2_apple = x1_apple + w_apple
-    y2_apple = y1_apple + h_apple
+    def my_direction(self):
+        if any((self.change_to == "RIGHT" and not self.direction == "LEFT",
+                self.change_to == "LEFT" and not self.direction == "RIGHT",
+                self.change_to == "UP" and not self.direction == "DOWN",
+                self.change_to == "DOWN" and not self.direction == "UP")):
+            self.direction = self.change_to
 
-    s1 = (x1_player >= x1_apple and x1_player <= x2_apple) or (x2_player >= x1_apple and x2_player <= x2_apple)
-    s2 = (y1_player >= y1_apple and y1_player <= y2_apple) or (y2_player >= y1_apple and y2_player <= y2_apple)
-    s3 = (x1_apple >= x1_player and x1_apple <= x2_player) or (x2_apple >= x1_player and x2_apple <= x2_player)
-    s4 = (y1_apple >= y1_player and y1_apple <= y2_player) or (y2_apple >= y1_player and y2_apple <= y2_player)
+    def where_head(self):
+        if self.direction == "RIGHT":
+            self.snake_head_pos[0] += 10
+        elif self.direction == "LEFT":
+            self.snake_head_pos[0] -= 10
+        elif self.direction == "UP":
+            self.snake_head_pos[1] -= 10
+        elif self.direction == "DOWN":
+            self.snake_head_pos[1] += 10
 
-    if ((s1 and s2) or (s3 and s4)) or ((s1 and s4) or (s3 and s2)):
-        your_score += 10
-        return True
-    return False
-
-
-def new_size_snake(player_x, player_y):
-    where_head()
-    pass
-
-
-def where_head():
-    global poz_x, pox_y, player_speed
-    if poz_x:
-        if player_speed < 0:
-            return 'UP'
+    def body_mechanism(
+            self, score, food_pos, screen_width, screen_height):
+        self.snake_body.insert(0, list(self.snake_head_pos))
+        if (self.snake_head_pos[0] == food_pos[0] and
+                self.snake_head_pos[1] == food_pos[1]):
+            food_pos = [randint(1, 720 // 10) * 10,
+                        randint(1, 460 // 10) * 10]
+            score += 1
         else:
-            return 'DOWN'
-    else:
-        if player_speed < 0:
-            return 'LEFT'
-        else:
-            return 'RIGHT'
+            del self.snake_body[-1]
+        return score, food_pos
+
+    def draw_snake(self, play_surface, surface_color):
+        play_surface.fill(surface_color)
+        for pos in self.snake_body:
+            pygame.draw.rect(
+                play_surface, self.snake_color, pygame.Rect(
+                    pos[0], pos[1], 10, 10))
+
+    def check_for_boundaries(self, game_over, screen_width, screen_height):
+        if self.snake_head_pos[0] > screen_width - 10 or self.snake_head_pos[0] < 0\
+                or self.snake_head_pos[1] > screen_height - 10 or self.snake_head_pos[1] < 0:
+            game_over()
+        for block in self.snake_body[1:]:
+            if block[0] == self.snake_head_pos[0] and block[1] == self.snake_head_pos[1]:
+                game_over()
 
 
-# В класс game
-WIDTH = 800
-HEIGHT = 650
-display = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("My game")
-clock = pygame.time.Clock()
-FPS = 50
-teta = pygame.transform.scale(pygame.image.load("textures\img.png"), (800, 650))
-your_score = 0
+class Food():
+    def __init__(self):
+        self.food_color = pygame.Color(0, 255, 0)
+        self.food_size_x = 10
+        self.food_size_y = 10
+        self.food_pos = [randint(1, 720 // 10) * 10, randint(1, 460 // 10) * 10]
+
+    def draw_food(self, play_surface):
+        pygame.draw.rect(
+            play_surface, self.food_color, pygame.Rect(
+                self.food_pos[0], self.food_pos[1],
+                self.food_size_x, self.food_size_y))
 
 
-# В класс snake
-vx = 0
-vy = 0
-player_x = WIDTH / 2
-player_y = HEIGHT / 2
-player_speed = 2
-poz_x = False
-poz_y = False
+game = Game()
+snake = Snake()
+food = Food()
+game.set_title()
+screen_width = 720
+screen_height = 460
 
-# В класс apple
-col_apples = 0
-x_apple = 0
-y_apple = 0
+while True:
+    snake.change_to = game.events(snake.change_to)
+    snake.my_direction()
+    snake.where_head()
+    game.score, food.food_pos = snake.body_mechanism(game.score, food.food_pos, 720, 460)
+    snake.draw_snake(game.play_surface, (255, 255, 255))
 
-# def main():
-running = True
+    food.draw_food(game.play_surface)
 
-while running:
-    clock.tick(FPS)
-    for e in pygame.event.get():
-        if e.type == pygame.QUIT:
-            running = False
-            pygame.quit()
-            quit()
-        if e.type == pygame.KEYDOWN:
-            if e.key == pygame.K_LEFT:
-                if not poz_x:
-                    vx = -player_speed
-                    poz_x = True
-                    poz_y = False
-            elif e.key == pygame.K_RIGHT:
-                if not poz_x:
-                    vx = player_speed
-                    poz_x = True
-                    poz_y = False
-            if e.key == pygame.K_UP:
-                if not poz_y:
-                    vy = -player_speed
-                    poz_x = False
-                    poz_y = True
-            elif e.key == pygame.K_DOWN:
-                if not poz_y:
-                    vy = player_speed
-                    poz_x = False
-                    poz_y = True
-
-    in_game()
-    eat_apple(player_x, player_y, x_apple, y_apple)
-    clock.tick(FPS)
-    display.blit(teta, (0, 0))
-    make_textures()
+    snake.check_for_boundaries(
+        game.game_over, 720, 460)
 
     pygame.display.flip()
-
-# main()
+    game.fps_controller.tick(10)
