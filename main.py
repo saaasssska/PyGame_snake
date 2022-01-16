@@ -10,7 +10,6 @@ class Game():
 
     def set_title(self):
         self.play_surface = pygame.display.set_mode((720, 460))
-        pygame.display.set_caption('Snake Game')
 
     def events(self, change_to):
         for event in pygame.event.get():
@@ -106,6 +105,7 @@ food = Food()
 game.set_title()
 screen_width = 720
 screen_height = 460
+pygame.display.set_caption('Snake Game')
 
 while True:
     snake.change_to = game.events(snake.change_to)
