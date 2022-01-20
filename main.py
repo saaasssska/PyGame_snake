@@ -5,13 +5,43 @@ import time
 
 class Game():
     def __init__(self):
-        self.fps_controller = pygame.time.Clock()
+        self.clock = pygame.time.Clock()
         pygame.font.init()
         self.score = 0
         self.play_surface = pygame.display.set_mode((720, 460))
 
     def set_title(self):
         self.play_surface = pygame.display.set_mode((720, 460))
+
+    def start_screen(self):
+        intro_text = ["                 Змейка",
+                      "Кликните тобы начать игру", ]
+        button_text = ["Рейтинг игроков"]
+
+        fon = pygame.transform.scale(pygame.image.load('textures\img.png'), (720, 460))
+        self.play_surface.blit(fon, (0, 0))
+        font = pygame.font.Font(None, 60)
+        text_coord = 50
+        for line in intro_text:
+            string_rendered = font.render(line, True, pygame.Color('white'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 10
+            intro_rect.top = text_coord
+            intro_rect.x = 100
+            text_coord += intro_rect.height
+            self.play_surface.blit(string_rendered, intro_rect)
+        first_button = pygame.draw.rect(self.play_surface, (255, 255, 255), (150, 250, 130, 65))
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit(0)
+                elif event.type == pygame.KEYDOWN or \
+                        event.type == pygame.MOUSEBUTTONDOWN:
+                    return
+            pygame.display.flip()
+            self.clock.tick(60)
 
     def show_score(self, choice=1):
         s_font = pygame.font.SysFont('consolas', 24)
@@ -30,19 +60,44 @@ class Game():
                 pygame.quit()
                 quit()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RIGHT:
-                    change_to = "RIGHT"
-                elif event.key == pygame.K_LEFT:
-                    change_to = "LEFT"
-                elif event.key == pygame.K_UP:
+                if event.key == pygame.K_UP or event.key == ord('w'):
                     change_to = "UP"
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_DOWN or event.key == ord('s'):
                     change_to = "DOWN"
+                elif event.key == pygame.K_RIGHT or event.key == ord('d'):
+                    change_to = "RIGHT"
+                elif event.key == pygame.K_LEFT or event.key == ord('a'):
+                    change_to = "LEFT"
         return change_to
 
     def game_over(self):
-        pygame.quit()
-        exit(0)
+        self.end_screen()
+
+    def end_screen(self):
+        intro_text = ["Нажмите любую кнопку для продолжения"]
+
+        fon = pygame.transform.scale(pygame.image.load('textures\img_1.png'), (720, 460))
+        self.play_surface.blit(fon, (0, 0))
+        font = pygame.font.Font(None, 40)
+        text_coord = 300
+        for line in intro_text:
+            string_rendered = font.render(line, True, pygame.Color('white'))
+            intro_rect = string_rendered.get_rect()
+            intro_rect.top = text_coord
+            intro_rect.x = 70
+            text_coord += intro_rect.height
+            self.play_surface.blit(string_rendered, intro_rect)
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit(0)
+                elif event.type == pygame.KEYDOWN or \
+                        event.type == pygame.MOUSEBUTTONDOWN:
+                    main()
+            pygame.display.flip()
+            self.clock.tick(60)
 
 
 class Snake():
@@ -116,6 +171,7 @@ def main():
     game = Game()
     snake = Snake()
     food = Food()
+    game.start_screen()
     game.set_title()
     screen_width = 720
     screen_height = 460
@@ -134,38 +190,7 @@ def main():
             game.game_over, 720, 460)
         game.show_score()
         pygame.display.flip()
-        game.fps_controller.tick(10)
+        game.clock.tick(10)
 
 
-def start_screen():
-    intro_text = ["                 Змейка",
-                  "Кликните тобы начать игру",]
-    screen = pygame.display.set_mode((720, 460))
-    pygame.font.init()
-    clock = pygame.time.Clock()
-
-    fon = pygame.transform.scale(pygame.image.load('textures\img.png'), (720, 460))
-    screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 60)
-    text_coord = 50
-    for line in intro_text:
-        string_rendered = font.render(line, True, pygame.Color('white'))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 100
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
-
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit(0)
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                main()
-        pygame.display.flip()
-        clock.tick(60)
-
-start_screen()
+main()
