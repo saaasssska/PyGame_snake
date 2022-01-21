@@ -1,12 +1,15 @@
 import pygame
 from random import randint
 import time
+import sqlite3
+# -*- coding: utf-8 -*-
 
 
 class Game():
     def __init__(self):
         self.clock = pygame.time.Clock()
         pygame.font.init()
+        self.con = sqlite3.connect('top_players.db')
         self.score = 0
         self.play_surface = pygame.display.set_mode((870, 630))
         self.x_button = 150
@@ -55,7 +58,7 @@ class Game():
                     x, y = event.pos
                     if x > self.x_button and x < self.x_button + self.w_button and \
                             y > self.y_button and y < self.y_button + self.h_button:
-                        print('yes')
+                        self.see_top_players()
                     else:
                         return
                 elif event.type == pygame.KEYDOWN or \
@@ -127,6 +130,12 @@ class Game():
                     main()
             pygame.display.flip()
             self.clock.tick(60)
+
+    def see_top_players(self):
+        cur = self.con.cursor()
+        res = cur.execute('SELECT * FROM top').fetchall()
+        print(list(res))
+        pass
 
 
 class Snake():
