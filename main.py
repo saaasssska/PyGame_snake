@@ -102,9 +102,9 @@ class Game():
 
         fon = pygame.transform.scale(pygame.image.load('textures\img_1.png'), (870, 630))
         self.play_surface.blit(fon, (0, 0))
-        font = pygame.font.Font(None, 40)
-        text_coord = 350
 
+        text_coord = 0
+        font = pygame.font.Font(None, 40)
         string_rendered = font.render('Ваш счёт: ' + str(self.score), True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
         intro_rect.top = 50
@@ -112,6 +112,7 @@ class Game():
         text_coord += intro_rect.height
         self.play_surface.blit(string_rendered, intro_rect)
 
+        text_coord = 350
         for line in intro_text:
             string_rendered = font.render(line, True, pygame.Color('white'))
             intro_rect = string_rendered.get_rect()
@@ -163,6 +164,9 @@ class Game():
         active = False
         text = ''
 
+        text_coord = 0
+        font = pygame.font.Font(None, 40)
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -185,15 +189,17 @@ class Game():
                             text += event.unicode
 
             screen.fill((30, 30, 30))
-            # Render the current text.
             txt_surface = font.render(text, True, color)
-            # Resize the box if the text is too long.
             width = max(200, txt_surface.get_width() + 10)
             input_box.w = width
-            # Blit the text.
             screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
-            # Blit the input_box rect.
             pygame.draw.rect(screen, color, input_box, 2)
+            string_rendered = font.render('Введите имя', True, pygame.Color('white'))
+            intro_rect = string_rendered.get_rect()
+            intro_rect.top = 50
+            intro_rect.x = 110
+            text_coord += intro_rect.height
+            self.play_surface.blit(string_rendered, intro_rect)
 
             pygame.display.flip()
             clock.tick(30)
