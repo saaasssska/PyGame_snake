@@ -120,16 +120,83 @@ class Game():
             text_coord += intro_rect.height
             self.play_surface.blit(string_rendered, intro_rect)
 
+        save_result = ['Сохранить', 'результат']
+        save_button = pygame.draw.rect(self.play_surface, (255, 255, 255), (500, 70, 200, 65))
+
+        text_coord = 70
+        font3 = pygame.font.Font(None, 30)
+        for line3 in save_result:
+            string_rendered = font3.render(line3, True, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 10
+            intro_rect.top = text_coord
+            intro_rect.x = 550
+            text_coord += intro_rect.height
+            self.play_surface.blit(string_rendered, intro_rect)
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit(0)
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    if x > 500 and x < 700 and \
+                            y > 70 and y < 135:
+                        self.save_player_result()
+                    else:
+                        main()
                 elif event.type == pygame.KEYDOWN or \
                         event.type == pygame.MOUSEBUTTONDOWN:
                     main()
             pygame.display.flip()
             self.clock.tick(60)
+
+    def save_player_result(self):
+        screen = pygame.display.set_mode((440, 280))
+        font = pygame.font.Font(None, 32)
+        clock = pygame.time.Clock()
+        input_box = pygame.Rect(100, 100, 140, 32)
+        color_inactive = pygame.Color('lightskyblue3')
+        color_active = pygame.Color('dodgerblue2')
+        color = color_inactive
+        active = False
+        text = ''
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    main()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if input_box.collidepoint(event.pos):
+                        active = not active
+                    else:
+                        active = False
+                    color = color_active if active else color_inactive
+                if event.type == pygame.KEYDOWN:
+                    if active:
+                        if event.key == pygame.K_RETURN:
+                            print(text)
+                            text = ''
+                            main()
+                        elif event.key == pygame.K_BACKSPACE:
+                            text = text[:-1]
+                        else:
+                            text += event.unicode
+
+            screen.fill((30, 30, 30))
+            # Render the current text.
+            txt_surface = font.render(text, True, color)
+            # Resize the box if the text is too long.
+            width = max(200, txt_surface.get_width() + 10)
+            input_box.w = width
+            # Blit the text.
+            screen.blit(txt_surface, (input_box.x + 5, input_box.y + 5))
+            # Blit the input_box rect.
+            pygame.draw.rect(screen, color, input_box, 2)
+
+            pygame.display.flip()
+            clock.tick(30)
 
     def see_top_players(self):
         cur = self.con.cursor()
