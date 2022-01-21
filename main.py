@@ -81,6 +81,7 @@ class Game():
     def events(self, change_to):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                self.con.close()
                 pygame.quit()
                 quit()
             if event.type == pygame.KEYDOWN:
@@ -181,6 +182,9 @@ class Game():
                     if active:
                         if event.key == pygame.K_RETURN:
                             print(text)
+                            cur = self.con.cursor()
+                            cur.execute("INSERT INTO top(name, score) VALUES(?, ?)", [text, self.score])
+                            self.con.commit()
                             text = ''
                             main()
                         elif event.key == pygame.K_BACKSPACE:
@@ -206,7 +210,7 @@ class Game():
 
     def see_top_players(self):
         cur = self.con.cursor()
-        res = cur.execute('SELECT * FROM top').fetchall()
+        res = [list(i) for i in cur.execute('SELECT * FROM top').fetchall()]
         print(list(res))
         pass
 
