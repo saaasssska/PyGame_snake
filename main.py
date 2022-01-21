@@ -212,7 +212,45 @@ class Game():
         cur = self.con.cursor()
         res = [list(i) for i in cur.execute('SELECT * FROM top').fetchall()]
         print(list(res))
-        pass
+        screen = pygame.display.set_mode((640, 680))
+        font = pygame.font.Font(None, 32)
+        clock = pygame.time.Clock()
+        res = list(sorted(res, key=lambda x: x[1], reverse=True))[:15]
+
+        text_coord = 50
+        font2 = pygame.font.Font(None, 40)
+        num = 1
+        for line in res:
+            line = [str(i) for i in line]
+            string_rendered = font2.render(str(num) + ' ' + ' '.join(line), True, pygame.Color('white'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 10
+            intro_rect.top = text_coord
+            intro_rect.x = 250
+            text_coord += intro_rect.height
+            self.play_surface.blit(string_rendered, intro_rect)
+            num += 1
+
+        exit_button = pygame.draw.rect(self.play_surface, (255, 0, 0), (530, 10, 105, 40))
+        text_coord = 17
+        string_rendered = font2.render('Выход', True, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.top = text_coord
+        intro_rect.x = 535
+        text_coord += intro_rect.height
+        self.play_surface.blit(string_rendered, intro_rect)
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    main()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    if x > 530 and x < 635 and y > 10 and y < 40:
+                        main()
+
+            pygame.display.flip()
+            clock.tick(30)
 
 
 class Snake():
