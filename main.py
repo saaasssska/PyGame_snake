@@ -38,6 +38,7 @@ class Game():
             text_coord += intro_rect.height
             self.play_surface.blit(string_rendered, intro_rect)
         first_button = pygame.draw.rect(self.play_surface, (255, 255, 255), (150, 250, 130, 65))
+        cast_button = pygame.draw.rect(self.play_surface, (255, 255, 255), (400, 250, 160, 65))
         text_coord = 250
         font2 = pygame.font.Font(None, 30)
         for line2 in button_text:
@@ -49,6 +50,9 @@ class Game():
             text_coord += intro_rect.height
             self.play_surface.blit(string_rendered, intro_rect)
 
+        string_rendered = font2.render('Кастомизация', True, pygame.Color('black'))
+        self.play_surface.blit(string_rendered, (410, 270, 142, 20))
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -59,6 +63,8 @@ class Game():
                     if x > self.x_button and x < self.x_button + self.w_button and \
                             y > self.y_button and y < self.y_button + self.h_button:
                         self.see_top_players()
+                    elif x > 400 and x < 560 and y > 250 and y < 325:
+                        self.customization()
                     else:
                         return
                 elif event.type == pygame.KEYDOWN or \
@@ -99,6 +105,7 @@ class Game():
         self.end_screen()
 
     def end_screen(self):
+        time.sleep(0.75)
         intro_text = ["Нажмите любую кнопку для продолжения"]
 
         fon = pygame.transform.scale(pygame.image.load('textures\img_1.png'), (870, 630))
@@ -252,12 +259,49 @@ class Game():
             pygame.display.flip()
             clock.tick(30)
 
+    def customization(self):
+        global snake_color
+        screen = pygame.display.set_mode((600, 300))
+        clock = pygame.time.Clock()
+        running = True
+        font = pygame.font.Font(None, 50)
+        red_button = pygame.draw.rect(screen, (255, 0, 0), (20, 100, 80, 80))
+        green_button = pygame.draw.rect(screen, (0, 255, 0), (140, 100, 80, 80))
+        blue_button = pygame.draw.rect(screen, (0, 0, 255), (260, 100, 80, 80))
+        brown_button = pygame.draw.rect(screen, (150, 11, 11), (380, 100, 80, 80))
+        purple_button = pygame.draw.rect(screen, (252, 8, 212), (500, 100, 80, 80))
+        while running:
+            clock.tick(60)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    main()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = event.pos
+                    if x > 20 and x < 100 and y > 80 and y < 160:
+                        snake_color = (255, 0, 0)
+                        main()
+                    elif x > 140 and x < 220 and y > 80 and y < 160:
+                        snake_color = (0, 255, 0)
+                        main()
+                    elif x > 260 and x < 340 and y > 80 and y < 160:
+                        snake_color = (0, 0, 255)
+                        main()
+                    elif x > 380 and x < 460 and y > 80 and y < 160:
+                        snake_color = (150, 11, 11)
+                        main()
+                    elif x > 500 and x < 580 and y > 80 and y < 160:
+                        snake_color = (252, 8, 212)
+                        main()
+
+            string_rendered = font.render('Выберите цвет змейки', True, pygame.Color('white'))
+            screen.blit(string_rendered, (100, 20, 200, 20))
+            pygame.display.flip()
+
 
 class Snake():
     def __init__(self):
         self.snake_head_pos = [360, 240]
         self.snake_body = [[360, 240]]
-        self.snake_color = pygame.Color(255, 0, 0)
         self.direction = ''
         self.change_to = self.direction
 
@@ -281,24 +325,27 @@ class Snake():
     def body_mechanism(
             self, score, food_pos, screen_width, screen_height):
         self.snake_body.insert(0, list(self.snake_head_pos))
+        global speed
         if (self.snake_head_pos[0] == food_pos[0] and
                 self.snake_head_pos[1] == food_pos[1]):
             food_pos = [randint(1, 855 // 15) * 15,
                         randint(1, 615 // 15) * 15]
             score += 1
+            speed += 0.5
         else:
             del self.snake_body[-1]
         return score, food_pos
 
     def draw_snake(self, play_surface, surface_color):
+        global snake_color
         play_surface.fill(surface_color)
         for pos in self.snake_body:
             pygame.draw.rect(
-                play_surface, self.snake_color, pygame.Rect(
+                play_surface, snake_color, pygame.Rect(
                     pos[0], pos[1], 15, 15))
 
     def check_for_boundaries(self, game_over, screen_width, screen_height):
-        if self.snake_head_pos[0] > screen_width - 15 or self.snake_head_pos[0] < 0\
+        if self.snake_head_pos[0] > screen_width - 15 or self.snake_head_pos[0] < 0 \
                 or self.snake_head_pos[1] > screen_height - 15 or self.snake_head_pos[1] < 0:
             game_over()
         for block in self.snake_body[1:]:
@@ -320,6 +367,8 @@ class Food():
 
 
 def main():
+    global speed
+    speed = 10
     game = Game()
     snake = Snake()
     food = Food()
@@ -342,7 +391,10 @@ def main():
             game.game_over, 870, 630)
         game.show_score()
         pygame.display.flip()
-        game.clock.tick(10)
+        game.clock.tick(speed)
 
+
+snake_color = pygame.Color(255, 0, 0)
+speed = 10
 
 main()
