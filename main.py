@@ -188,7 +188,6 @@ class Game():
                 if event.type == pygame.KEYDOWN:
                     if active:
                         if event.key == pygame.K_RETURN:
-                            print(text)
                             cur = self.con.cursor()
                             cur.execute("INSERT INTO top(name, score) VALUES(?, ?)", [text, self.score])
                             self.con.commit()
