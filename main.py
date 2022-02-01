@@ -217,7 +217,6 @@ class Game():
     def see_top_players(self):
         cur = self.con.cursor()
         res = [list(i) for i in cur.execute('SELECT * FROM top').fetchall()]
-        print(list(res))
         screen = pygame.display.set_mode((640, 680))
         font = pygame.font.Font(None, 32)
         clock = pygame.time.Clock()
@@ -347,6 +346,7 @@ class Snake():
         if self.snake_head_pos[0] > screen_width - 15 or self.snake_head_pos[0] < 0 \
                 or self.snake_head_pos[1] > screen_height - 15 or self.snake_head_pos[1] < 0:
             game_over()
+
         for block in self.snake_body[1:]:
             if block[0] == self.snake_head_pos[0] and block[1] == self.snake_head_pos[1]:
                 game_over()
